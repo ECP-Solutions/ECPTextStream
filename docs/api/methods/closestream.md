@@ -32,4 +32,4 @@ _None_
 
 ---
 
-[Back to Methods overview](https://ws-garcia.github.io/ECPTextStream/api/methods/)
+[Back to Methods overview](https://ecp-solutions.github.io/ECPTextStream/api/methods/)

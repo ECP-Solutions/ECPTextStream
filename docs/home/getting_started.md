@@ -24,7 +24,7 @@ description: "Introduction to ECPTextStream class."
 
 In order to be able to use `ECPTextStream.cls` module within your project, please review the installation instructions by clicking the button below.
 
-[Installation](https://ecp.solutions.github.io/ECPTextStream/home/installation.html){: .btn .btn-green }
+[Installation](https://ecp-solutions.github.io/ECPTextStream/home/installation.html){: .btn .btn-green }
 
 VBA has several native functions and statements to enable I/O operations over text files. In adition, the language can use other API's like the `FileSystemObject` (FSO) provided by the Microsoft Scripting Runtime library. In [this](https://stackoverflow.com/questions/1376756/what-is-a-superfast-way-to-read-large-files-line-by-line-in-vba/27674729#27674729) Stack Overflow post, andrewsi concludes that read the whole file content using VBA's native `Binary` access is faster than read the file line by line with the `Input Line` statement and also faster than read using the FSO's API.
 

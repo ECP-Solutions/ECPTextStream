@@ -31,8 +31,8 @@ _None_
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-: [OpenStream method](https://ws-garcia.github.io/ECPTextStream/api/methods/openstream.html).
+: [OpenStream method](https://ecp-solutions.github.io/ECPTextStream/api/methods/openstream.html).
 
 ---
 
-[Back to Methods overview](https://ws-garcia.github.io/ECPTextStream/api/methods/)
+[Back to Methods overview](https://ecp-solutions.github.io/ECPTextStream/api/methods/)

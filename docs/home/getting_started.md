@@ -24,7 +24,7 @@ description: "Introduction to ECPTextStream class."
 
 In order to be able to use `ECPTextStream.cls` module within your project, please review the installation instructions by clicking the button below.
 
-[Installation](https://ws-garcia.github.io/ECPTextStream/home/installation.html){: .btn .btn-green }
+[Installation](https://ecp.solutions.github.io/ECPTextStream/home/installation.html){: .btn .btn-green }
 
 VBA has several native functions and statements to enable I/O operations over text files. In adition, the language can use other API's like the `FileSystemObject` (FSO) provided by the Microsoft Scripting Runtime library. In [this](https://stackoverflow.com/questions/1376756/what-is-a-superfast-way-to-read-large-files-line-by-line-in-vba/27674729#27674729) Stack Overflow post, andrewsi concludes that read the whole file content using VBA's native `Binary` access is faster than read the file line by line with the `Input Line` statement and also faster than read using the FSO's API.
 
@@ -85,7 +85,7 @@ End Sub
 
 ## Benchmark
 
-The ECPTextStream class was tested with files from 191 MB to 1.87 GB of size, you can download the test files from [here](https://github.com/ws-garcia/ECPTextStream/raw/main/test-assets/BigTextFiles.zip). Below is showed the procedures for stablish the benchmark for the read operations. Some procedures are available on internet.
+The ECPTextStream class was tested with files from 191 MB to 1.87 GB of size, you can download the test files from [here](https://github.com/ecp-solutions/ECPTextStream/raw/main/test-assets/BigTextFiles.zip). Below is showed the procedures for stablish the benchmark for the read operations. Some procedures are available on internet.
 
 ```vb
 Sub BufferedRead(FilePath As String)
@@ -180,7 +180,7 @@ The image below shows the overall performance for the read operations.
 
 ## Licence
 
-Copyright (C) 2021-2023  [W. García](https://github.com/ws-garcia/).
+Copyright (C) 2025  [ECP Solutions](https://github.com/ecp-solutions/).
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

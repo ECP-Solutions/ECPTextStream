@@ -49,8 +49,8 @@ The `linebreakMatchingBehavior` property allows the user to specify how line bre
 {: .text-grey-dk-300 .bg-yellow-000 }
 
 See also
-: [EndStreamOnLineBreak Property](https://ws-garcia.github.io/ECPTextStream/api/properties/endstreamonlinebreak.html), [EndLineMatchingBehavior Enumeration](https://ws-garcia.github.io/ECPTextStream/api/enumerations/endlinematchingbehavior.html), [BufferSize Property](https://ws-garcia.github.io/ECPTextStream/api/properties/buffersize.html).
+: [EndStreamOnLineBreak Property](https://ecp-solutions.github.io/ECPTextStream/api/properties/endstreamonlinebreak.html), [EndLineMatchingBehavior Enumeration](https://ecp-solutions.github.io/ECPTextStream/api/enumerations/endlinematchingbehavior.html), [BufferSize Property](https://ecp-solutions.github.io/ECPTextStream/api/properties/buffersize.html).
 
 ---
 
-[Back to Properties overview](https://ws-garcia.github.io/ECPTextStream/api/properties/)
+[Back to Properties overview](https://ecp-solutions.github.io/ECPTextStream/api/properties/)

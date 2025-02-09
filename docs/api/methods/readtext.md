@@ -31,7 +31,7 @@ _None_
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-: [OpenStream Method](https://ws-garcia.github.io/ECPTextStream/api/methods/openstream.html).
+: [OpenStream Method](https://ecp-solutions.github.io/ECPTextStream/api/methods/openstream.html).
 
 ---
 
@@ -45,6 +45,6 @@ Each call to the `ReadText` method will read a set of characters until the buffe
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-:[BufferSize Property](https://ws-garcia.github.io/ECPTextStream/api/properties/buffersize.html), [EndStreamOnLineBreak Property](https://ws-garcia.github.io/ECPTextStream/api/properties/endstreamonlinebreak.html).
+:[BufferSize Property](https://ecp-solutions.github.io/ECPTextStream/api/properties/buffersize.html), [EndStreamOnLineBreak Property](https://ecp-solutions.github.io/ECPTextStream/api/properties/endstreamonlinebreak.html).
 
-[Back to Methods overview](https://ws-garcia.github.io/ECPTextStream/api/methods/)
+[Back to Methods overview](https://ecp-solutions.github.io/ECPTextStream/api/methods/)

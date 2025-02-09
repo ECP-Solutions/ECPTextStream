@@ -32,6 +32,6 @@ Provides the list of supported behaviors for matching line breaks in the buffer.
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-: [LinebreakMatchingBehavior Property](https://ws-garcia.github.io/ECPTextStream/api/properties/linebreakmatchingbehavior.html)
+: [LinebreakMatchingBehavior Property](https://ecp-solutions.github.io/ECPTextStream/api/properties/linebreakmatchingbehavior.html)
 
-[Back to Enumerations overview](https://ws-garcia.github.io/ECPTextStream/api/enumerations/)
+[Back to Enumerations overview](https://ecp-solutions.github.io/ECPTextStream/api/enumerations/)

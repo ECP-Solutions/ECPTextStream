@@ -33,6 +33,6 @@ Provides the list of supported line breaks characters.
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-: [WriteBlankLines Method](https://ws-garcia.github.io/ECPTextStream/api/methods/writeblanklines.html)
+: [WriteBlankLines Method](https://ecp-solutions.github.io/ECPTextStream/api/methods/writeblanklines.html)
 
-[Back to Enumerations overview](https://ws-garcia.github.io/ECPTextStream/api/enumerations/)
+[Back to Enumerations overview](https://ecp-solutions.github.io/ECPTextStream/api/enumerations/)

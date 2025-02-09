@@ -37,8 +37,8 @@ _None_
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-: [ReadText Method](https://ws-garcia.github.io/ECPTextStream/api/methods/readtext.html).
+: [ReadText Method](https://ecp-solutions.github.io/ECPTextStream/api/methods/readtext.html).
 
 ---
 
-[Back to Properties overview](https://ws-garcia.github.io/ECPTextStream/api/properties/)
+[Back to Properties overview](https://ecp-solutions.github.io/ECPTextStream/api/properties/)

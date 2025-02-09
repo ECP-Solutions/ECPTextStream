@@ -39,7 +39,7 @@ Inserts a specified number of blank lines into the current opened text file.
 </table>
 
 See also
-: [EndLineChar Enumeration](https://ws-garcia.github.io/ECPTextStream/api/enumerations/endlinechar.html).
+: [EndLineChar Enumeration](https://ecp-solutions.github.io/ECPTextStream/api/enumerations/endlinechar.html).
 
 ---
 
@@ -47,4 +47,4 @@ See also
 
 The `GetDataFromCSV` method returns an empty `String` when errors occurs.
 
-[Back to Methods overview](https://ws-garcia.github.io/ECPTextStream/api/methods/)
+[Back to Methods overview](https://ecp-solutions.github.io/ECPTextStream/api/methods/)

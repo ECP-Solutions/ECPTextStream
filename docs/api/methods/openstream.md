@@ -37,4 +37,4 @@ _None_
 If the text file doesn’t exist, it will be created and then a stream is opened. 
 
 
-[Back to Methods overview](https://ws-garcia.github.io/ECPTextStream/api/methods/)
+[Back to Methods overview](https://ecp-solutions.github.io/ECPTextStream/api/methods/)

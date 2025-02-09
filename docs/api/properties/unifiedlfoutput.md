@@ -40,8 +40,8 @@ _Yes_
 |Let|_None_|
 
 See also
-: [BufferString Property](https://ws-garcia.github.io/ECPTextStream/api/properties/bufferstring.html).
+: [BufferString Property](https://ecp-solutions.github.io/ECPTextStream/api/properties/bufferstring.html).
 
 ---
 
-[Back to Properties overview](https://ws-garcia.github.io/ECPTextStream/api/properties/)
+[Back to Properties overview](https://ecp-solutions.github.io/ECPTextStream/api/properties/)

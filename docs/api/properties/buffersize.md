@@ -42,8 +42,8 @@ _Yes_
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-: [ReadText Method](https://ws-garcia.github.io/ECPTextStream/api/methods/readtext.html), [BufferLength Property](https://ws-garcia.github.io/ECPTextStream/api/properties/bufferlength.html).
+: [ReadText Method](https://ecp-solutions.github.io/ECPTextStream/api/methods/readtext.html), [BufferLength Property](https://ecp-solutions.github.io/ECPTextStream/api/properties/bufferlength.html).
 
 ---
 
-[Back to Properties overview](https://ws-garcia.github.io/ECPTextStream/api/properties/)
+[Back to Properties overview](https://ecp-solutions.github.io/ECPTextStream/api/properties/)

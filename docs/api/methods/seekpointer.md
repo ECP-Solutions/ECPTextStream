@@ -31,8 +31,8 @@ _None_
 {: .text-grey-dk-300 .bg-grey-lt-000 }
 
 See also
-: [RestartStreamReader method](https://ws-garcia.github.io/ECPTextStream/api/methods/restartstreamreader.html).
+: [RestartStreamReader method](https://ecp-solutions.github.io/ECPTextStream/api/methods/restartstreamreader.html).
 
 ---
 
-[Back to Methods overview](https://ws-garcia.github.io/VBA-CSV-interface/api/methods/)
+[Back to Methods overview](https://ecp-solutions.github.io/VBA-CSV-interface/api/methods/)

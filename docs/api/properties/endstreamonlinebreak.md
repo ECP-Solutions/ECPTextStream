@@ -37,8 +37,8 @@ _Yes_
 |Let|_None_|
 
 See also
-: [ReadText Method](https://ws-garcia.github.io/ECPTextStream/api/methods/readtext.html).
+: [ReadText Method](https://ecp-solutions.github.io/ECPTextStream/api/methods/readtext.html).
  
  ---
  
-[Back to Properties overview](https://ws-garcia.github.io/ECPTextStream/api/properties/)
+[Back to Properties overview](https://ecp-solutions.github.io/ECPTextStream/api/properties/)

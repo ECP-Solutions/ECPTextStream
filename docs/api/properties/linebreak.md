@@ -35,8 +35,8 @@ _None_
 *Type*: `String`
 
 See also
-: [ReadText method](https://ws-garcia.github.io/ECPTextStream/api/methods/readtext.html).
+: [ReadText method](https://ecp-solutions.github.io/ECPTextStream/api/methods/readtext.html).
 
 ---
 
-[Back to Properties overview](https://ws-garcia.github.io/ECPTextStream/api/properties/)
+[Back to Properties overview](https://ecp-solutions.github.io/ECPTextStream/api/properties/)

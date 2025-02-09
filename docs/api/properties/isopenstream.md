@@ -35,8 +35,8 @@ _None_
 *Type*: `Boolean`
 
 See also
-: [OpenStream method](https://ws-garcia.github.io/ECPTextStream/api/methods/openstream.html).
+: [OpenStream method](https://ecp-solutions.github.io/ECPTextStream/api/methods/openstream.html).
 
 ---
 
-[Back to Properties overview](https://ws-garcia.github.io/ECPTextStream/api/properties/)
+[Back to Properties overview](https://ecp-solutions.github.io/ECPTextStream/api/properties/)

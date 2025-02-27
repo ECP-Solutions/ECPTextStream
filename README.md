@@ -1,5 +1,5 @@
 # ![ECPTextStream](/docs/assets/img/ECPTextStream.png)
-[![GitHub](https://img.shields.io/github/license/ws-garcia/ECPTextStream?style=plastic)](https://github.com/ws-garcia/ECPTextStream/blob/main/LICENSE) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/ws-garcia/ECPTextStream?style=plastic)](https://github.com/ws-garcia/ECPTextStream/releases/latest)
+[![GitHub](https://img.shields.io/github/license/ecp-solutions/ECPTextStream?style=plastic)](https://github.com/ecp-solutions/ECPTextStream/blob/main/LICENSE) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/ecp-solutions/ECPTextStream?style=plastic)](https://github.com/ecp-solutions/ECPTextStream/releases/latest)
 
 ## Introductory words
 
@@ -17,7 +17,7 @@ ECPTextStream is an easy-to-use class module developed to enable buffered text s
 
 ## Getting started
 
-If you don't know how to get started with ECPTextStream class, visit the [documentation repo](https://ws-garcia.github.io/ECPTextStream/). If you don't know if this tool can help you, take a look to the popular [CSV Interface repo](https://github.com/ws-garcia/VBA-CSV-interface) or to this [sample project](https://ecp-solutions.github.io/ECPTextStream/project_sample/).
+If you don't know how to get started with ECPTextStream class, visit the [documentation repo](https://ecp-solutions.github.io/ECPTextStream/). If you don't know if this tool can help you, take a look to the popular [CSV Interface repo](https://github.com/ws-garcia/VBA-CSV-interface) or to this [sample project](https://ecp-solutions.github.io/ECPTextStream/project_sample/).
 
 ## Contributing
 

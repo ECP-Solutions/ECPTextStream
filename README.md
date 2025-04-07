@@ -8,6 +8,7 @@ ECPTextStream is an easy-to-use class module developed to enable buffered text s
 ## Advantages
 * The fastest way for I/O operations over "big" text files from VBA (up to 600 MB/sec.).
   ![Benchmark](/docs/home/TextRead-Benchmark.png)
+* [UTF-8](https://www.unicode.org/faq/utf_bom.html#UTF8) encoding support. Do you have a text file, perhaps in chinese or some other foreign cyrillic language, downloaded from the Internet? This library is made to help you deal with it! You will be able to read and write UTF-8 encoded files in an easy way. 
 * Supports files up to 2 GB of size.
 * Supports streams delimited by CRLF, LF and CR characters. This is useful when working with structured files like CSVs.
 * No memory overloads. Text files being read using a buffer, small enough to hold a single data line. 
@@ -33,7 +34,7 @@ Visit [this site](https://ws-garcia.github.io/ECPTextStream/limitations/index.ht
 
 ## License
 
-Copyright (C) 2021-2023  [W. García](https://github.com/ws-garcia/).
+Copyright (C) 2025  [ECP Solutions](https://github.com/ecp-solutions/).
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 

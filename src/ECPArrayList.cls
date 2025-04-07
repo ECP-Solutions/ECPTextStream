@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '#
 '////////////////////////////////////////////////////////////////////////////////////////////
-' Copyright © 2021-2023 W. García
+' Copyright © 2021-2025 W. García
 ' GPL-3.0 license | https://www.gnu.org/licenses/gpl-3.0.html/
 ' https://ingwilfredogarcia.wordpress.com
 '#
@@ -155,7 +155,7 @@ End Property
 ''' <summary>
 ''' Gets all indexed Items from the current instance.
 ''' </summary>
-Public Property Get Keys() As String()
+Public Property Get keys() As String()
     Dim tmpResult() As String
     Dim iCounter As Long
     
@@ -163,7 +163,7 @@ Public Property Get Keys() As String()
     For iCounter = 0 To IndexedCurrentIndex
         tmpResult(iCounter) = IndexedBuffer(iCounter).itemKey
     Next iCounter
-    Keys = tmpResult
+    keys = tmpResult
 End Property
 
 ''' <summary>
@@ -323,7 +323,7 @@ Attribute Add2.VB_Description = "Appends a copy, in jagged array fashion, of the
                             Add2 tmpValue
                         Next j
                     Else
-                        If IsJaggedArray(aValues(i)) Then
+                        If isJaggedArray(aValues(i)) Then
                             For j = LBound(aValues(i)) To UBound(aValues(i))
                                 Add2 aValues(i)(j)
                             Next j
@@ -386,6 +386,8 @@ Public Sub AddIndexedItem(Key As String, iValue As Variant, _
         ReDim Preserve IndexedBuffer(0 To IndexedMaxIndex)
     End If
     If Not P_KEYS_TREE Then
+        tmpItem.itemKey = Key
+        tmpItem.ItemValue = iValue
         IndexedBuffer(tmpIdx) = tmpItem
     Else
         IndexedBuffer(tmpIdx).itemKey = Key
@@ -507,10 +509,10 @@ End Sub
 ''' </summary>
 ''' <param name="Keys">Indexes of the fields used for deduplication.</param>
 ''' <param name="headers">Indicates if the data has a header record.</param>
-Public Function Dedupe(Keys As String, Optional Headers As Boolean = True) As ECPArrayList
+Public Function Dedupe(keys As String, Optional Headers As Boolean = True) As ECPArrayList
     On Error GoTo ErrHandler_Dedupe
     Dim aIndexes() As String
-    aIndexes() = SplitFieldsOrderStr(Keys)
+    aIndexes() = SplitFieldsOrderStr(keys)
     If CheckForDupIndexes(aIndexes) Then
         Dim IndexesCollection As Collection
         Dim dRecCounter As Long
@@ -532,19 +534,19 @@ Public Function Dedupe(Keys As String, Optional Headers As Boolean = True) As EC
 ErrHandler_Dedupe:
     Set Dedupe = Nothing
 End Function
-Private Function DedupeKeysMerge(aIndex As Long, Keys As Variant) As String
+Private Function DedupeKeysMerge(aIndex As Long, keys As Variant) As String
     Dim tmpResult() As Variant
     Dim kLB As Long
     Dim kUb As Long
     Dim keyCounter As Long
     Dim tgRecord() As Variant
     
-    kLB = LBound(Keys)
-    kUb = UBound(Keys)
+    kLB = LBound(keys)
+    kUb = UBound(keys)
     ReDim tmpResult(kLB To kUb)
     tgRecord() = Buffer(aIndex)
     For keyCounter = kLB To kUb
-        tmpResult(keyCounter) = tgRecord(CLng(Keys(keyCounter)))
+        tmpResult(keyCounter) = tgRecord(CLng(keys(keyCounter)))
     Next keyCounter
     DedupeKeysMerge = Join$(tmpResult, "|")
 End Function
@@ -676,73 +678,6 @@ Private Function FielsToMergeAreValid(indexes() As String) As Boolean
         iDxFld = iDxFld + 1
     Loop While iDxFld <= IdxUprB And tmpBool
     FielsToMergeAreValid = tmpBool
-End Function
-
-''' <summary>
-''' Returns a filtered array list using the
-''' CSVexpressions class module.
-''' </summary>
-''' <param name="Pattern">The expression to eval.</param>
-''' <param name="StartIndex">The index to start filter records (base 1).</param>
-''' <param name="Exclude"> Exclude records matching "Pattern" if set to "True".</param>
-''' <param name="Headers"> Indicates if the data has header record.</param>
-Public Function Filter(Pattern As String, startIndex As Long, _
-                        Optional Exclude As Boolean = False, _
-                        Optional Headers As Boolean = True) As ECPArrayList
-    Dim cPattern As String
-    Dim endIndex As Long
-    Dim Evaluator As CSVexpressions
-    Dim evalWithOutVar As Boolean
-    Dim rCounter As Long
-    Dim TargetFields() As Long
-    
-    If P_INDEXING Then Exit Function 'Does not work over indexed buffers
-    If startIndex < 1 Then Exit Function
-    Set Filter = New ECPArrayList
-    Set Evaluator = New CSVexpressions
-    endIndex = CurrentIndex
-    With Evaluator
-        If Headers Then
-            .Create SwitchUnderscoresAndSpaces(Pattern, Buffer(0))
-            evalWithOutVar = (.CurrentVariables = vbNullString)
-            If Not evalWithOutVar Then
-                TargetFields() = GetIndexesFromVarList(SwitchUnderscoresAndSpaces(.CurrentVariables, Buffer(0), ToUnderscores:=False), Buffer(0))
-                'Replace
-                cPattern = RebuildEvalExpression(.expression, .CurrentVariables, TargetFields)
-                .Create cPattern
-            End If
-        Else
-            .Create Pattern
-            evalWithOutVar = (.CurrentVariables = vbNullString)
-            If Not evalWithOutVar Then
-                TargetFields() = GetIndexesFromVarList(.CurrentVariables)
-            End If
-        End If
-        For rCounter = startIndex - 1 To endIndex
-            If Not evalWithOutVar Then
-                On Error Resume Next
-                .Eval GetValuesForVariables(rCounter, TargetFields)
-            Else
-                On Error Resume Next
-                .Eval
-            End If
-            If .errorType = ExpressionErrors.errNone Then
-                If err.Number = 0 Then
-                    If CBool(.Result) Then
-                        If Not Exclude Then
-                            Filter.Add Buffer(rCounter) 'Append current record
-                        End If
-                    Else
-                         If Exclude Then
-                            Filter.Add Buffer(rCounter) 'Append current record
-                        End If
-                    End If
-                Else
-                    err.Clear
-                End If
-            End If
-        Next rCounter
-    End With
 End Function
 
 ''' <summary>
@@ -931,7 +866,7 @@ Attribute Concat.VB_Description = "Concatenates the values from the current inst
                 Add tmpRow
             Next Dim1Pointer
         Else 'Jagged or 1D array expected
-            If IsJaggedArray(tmpValues) Then
+            If isJaggedArray(tmpValues) Then
                 For Dim1Pointer = LBound(tmpValues) To UBound(tmpValues)
                     Add tmpValues(Dim1Pointer)
                 Next Dim1Pointer
@@ -978,7 +913,7 @@ Attribute Copy.VB_Description = "Returns a copy of the current instance."
     
     Set Copy = New ECPArrayList
     If Not P_INDEXING Then
-        If endIndex = -1 Then
+        If endIndex = -1 Or endIndex > CurrentIndex Then
             endIndex = CurrentIndex
         End If
         Copy.Reinitialize endIndex - startIndex + 1
@@ -986,7 +921,7 @@ Attribute Copy.VB_Description = "Returns a copy of the current instance."
             Copy.Add Buffer(c)
         Next c
     Else
-        If endIndex = -1 Then
+        If endIndex = -1 Or endIndex > IndexedCurrentIndex Then
             endIndex = IndexedCurrentIndex
         End If
         Copy.Reinitialize endIndex - startIndex + 1
@@ -1356,19 +1291,19 @@ End Sub
 ''' Returns True if the paseed argument is a jagged array.
 ''' </summary>
 ''' <param name="Arr">The array to check.</param>
-Public Function IsJaggedArray(arr As Variant) As Boolean
-Attribute IsJaggedArray.VB_Description = "Returns True if the paseed argument is a jagged array."
+Public Function isJaggedArray(arr As Variant) As Boolean
+Attribute isJaggedArray.VB_Description = "Returns True if the paseed argument is a jagged array."
     On Error GoTo IsJaggedArray_Err_Handler
     If IsArray(arr) Then
         If Not MultiDimensional(arr) Then
             Dim BoundingTest As Long
             BoundingTest = LBound(arr(LBound(arr)))
-            IsJaggedArray = True
+            isJaggedArray = True
         End If
     End If
     Exit Function
 IsJaggedArray_Err_Handler:
-    IsJaggedArray = False
+    isJaggedArray = False
 End Function
 
 Private Function Is2Darray(arr As Variant) As Boolean
@@ -1380,105 +1315,6 @@ Private Function Is2Darray(arr As Variant) As Boolean
     Exit Function
 err_handler:
     Is2Darray = False
-End Function
-
-''' <summary>
-''' Inserts a new field with name FieldName into the records of the
-''' current instance at the given index. If a formula is given, the
-''' field is populated in each record (row) with the result of evaluating
-''' the formula on each field.
-''' </summary>
-''' <param name="aIndex">The index of the field to insert.</param>
-''' <param name="FieldName">Name of the new field.</param>
-''' <param name="Headers">Indicates whether the data have headers.</param>
-''' <param name="Formula">The formula to compute the new field values.</param>
-Public Function InsertField(aIndex As Long, _
-                        Optional FieldName As String = vbNullString, _
-                        Optional Headers As Boolean = True, _
-                        Optional Formula As String = vbNullString) As ECPArrayList
-    On Error GoTo ErrHandler_InsertField
-    Select Case aIndex
-        Case 0 To UBound(Buffer(0)) + 1
-            Dim cFormula As String
-            Dim cpRecord() As Variant
-            Dim cpRecordBK() As Variant
-            Dim curRecord() As Variant
-            Dim Evaluator As CSVexpressions
-            Dim evalWithOutVar As Boolean
-            Dim fCounter As Long
-            Dim fldCount As Long
-            Dim rCounter As Long
-            Dim TargetFields() As Long
-            
-            fldCount = UBound(Buffer(0))
-            '@--------------------------------------------------------------------------------
-            'Reserve storage
-            ReDim cpRecord(0 To fldCount + 1)
-            cpRecordBK() = cpRecord
-            Set Evaluator = New CSVexpressions
-            If Formula <> vbNullString Then
-                With Evaluator
-                    .formatResult = True
-                    .Create SwitchUnderscoresAndSpaces(Formula, Buffer(0))
-                    evalWithOutVar = (.CurrentVariables = vbNullString)
-                    If Not evalWithOutVar Then
-                        TargetFields() = GetIndexesFromVarList( _
-                                                                SwitchUnderscoresAndSpaces(.CurrentVariables, Buffer(0), ToUnderscores:=False), _
-                                                                Buffer(0))
-                        'Replace
-                        cFormula = RebuildEvalExpression(.expression, .CurrentVariables, TargetFields)
-                        .Create cFormula
-                    End If
-                End With
-            End If
-            For rCounter = 0 To CurrentIndex
-                curRecord() = Buffer(rCounter)
-                If Headers Then
-                    If FieldName <> vbNullString Then
-                        If rCounter = 0 Then
-                            '@--------------------------------------------------------------------------------
-                            'Add header name
-                            cpRecord(aIndex) = FieldName
-                        End If
-                    End If
-                End If
-                For fCounter = 0 To fldCount
-                    If fCounter < aIndex Then
-                        cpRecord(fCounter) = curRecord(fCounter)
-                    Else
-                        cpRecord(fCounter + 1) = curRecord(fCounter)
-                    End If
-                Next fCounter
-                If Formula <> vbNullString Then
-                    If Headers Then
-                        If rCounter > 0 Then
-                            If Not evalWithOutVar Then
-                                On Error Resume Next
-                                cpRecord(aIndex) = FormatEvalOutput(Evaluator.Eval(GetValuesForVariables(rCounter, TargetFields)))
-                            Else
-                                cpRecord(aIndex) = FormatEvalOutput(Evaluator.Eval())
-                            End If
-                        End If
-                    Else
-                        If Not evalWithOutVar Then
-                            On Error Resume Next
-                            cpRecord(aIndex) = FormatEvalOutput(Evaluator.Eval(GetValuesForVariables(rCounter, TargetFields)))
-                        Else
-                            cpRecord(aIndex) = FormatEvalOutput(Evaluator.Eval())
-                        End If
-                    End If
-                End If
-                Buffer(rCounter) = cpRecord
-                cpRecord = cpRecordBK()
-            Next rCounter
-        Case Else
-            err.Raise 9
-    End Select
-    Set InsertField = Me
-    Exit Function
-ErrHandler_InsertField:
-    Set InsertField = Nothing
-    err.Clear
 End Function
 
 ''' <summary>
@@ -1530,7 +1366,8 @@ Private Function JoinVariablesAndValues(ByRef tRecord As Variant, FieldsToJoin()
     ReDim tmpData(tdLB To tdUB)
     
     For idxIter = tdLB To tdUB
-        If IsNumeric(tRecord(DeltaIdx + FieldsToJoin(idxIter) - 1)) Then
+        If IsNumeric(tRecord(DeltaIdx + FieldsToJoin(idxIter) - 1)) And _
+                tRecord(DeltaIdx + FieldsToJoin(idxIter) - 1) <> vbEmpty Then
             tmpData(idxIter) = "f" & FieldsToJoin(idxIter) & "=" _
                                 & tRecord(DeltaIdx + FieldsToJoin(idxIter) - 1)
         Else    'Literal strings
@@ -1582,23 +1419,25 @@ Private Function FormatEvalOutput(ByRef EvalOutput As String) As String
     End If
 End Function
 
-Public Function SplitField(aIndex As Long, CharToSplitWith As String) As ECPArrayList
+Public Function SplitField(aIndex As Long, CharToSplitWith As String, _
+                            Optional RowSplit As Boolean = False) As ECPArrayList
     Dim ColUB As Long
+    Dim curRecord() As Variant
+    Dim cpRecord() As String
+    Dim tmpRecord() As Variant
+    Dim rCounter As Long
+    Dim rowDiff As Long
+    Dim sfldIndex As Long
+    Dim lRowIdx As Long
+    Dim sfldCPindex As Long
+    Dim FldDiff As Long
     
     On Error GoTo ErrHandler_SplitField
-    ColUB = UBound(Buffer(0))
-    Select Case aIndex
-        Case 0 To ColUB
-            Dim curRecord() As Variant
-            Dim cpRecord() As String
-            Dim tmpRecord() As Variant
-            Dim rCounter As Long
-            Dim sfldIndex As Long
-            Dim sfldCPindex As Long
-            Dim FldDiff As Long
-                
-            For rCounter = 0 To CurrentIndex
-                curRecord() = Buffer(rCounter)
+    If Not RowSplit Then
+        For rCounter = 0 To CurrentIndex
+            curRecord() = Buffer(rCounter)
+            ColUB = UBound(curRecord)
+            If aIndex > 0 And aIndex <= ColUB Then
                 cpRecord() = Split(curRecord(aIndex), CharToSplitWith)
                 FldDiff = UBound(cpRecord) - LBound(cpRecord)
                 ReDim tmpRecord(0 To ColUB + FldDiff)
@@ -1613,17 +1452,32 @@ Public Function SplitField(aIndex As Long, CharToSplitWith As String) As ECPArra
                     tmpRecord(sfldIndex) = curRecord(sfldIndex - FldDiff)
                 Next sfldIndex
                 Buffer(rCounter) = tmpRecord
-            Next rCounter
-        Case Else
-            GoTo OutOfBounds_SplitField
-    End Select
+            End If
+        Next rCounter
+    Else
+        rowDiff = 1
+        For rCounter = 0 To CurrentIndex
+            rowDiff = rowDiff - 1
+            curRecord() = Buffer(rCounter + rowDiff)
+            ColUB = UBound(curRecord)
+            If aIndex > 0 And aIndex <= ColUB Then
+                cpRecord() = Split(curRecord(aIndex), CharToSplitWith)
+                lRowIdx = 0
+                For sfldIndex = LBound(cpRecord) To UBound(cpRecord)
+                    lRowIdx = lRowIdx + 1
+                    rowDiff = rowDiff + 1
+                    curRecord(aIndex) = cpRecord(sfldIndex)
+                    If lRowIdx = 1 Then
+                        Buffer(rCounter + rowDiff - 1) = curRecord
+                    Else
+                        Me.Insert rCounter + rowDiff - 1, curRecord
+                    End If
+                Next sfldIndex
+            End If
+        Next rCounter
+    End If
     Set SplitField = Me
 ErrHandler_SplitField:
-    Exit Function
-OutOfBounds_SplitField:
-    Set SplitField = Nothing
-    err.Raise 9
-    Resume ErrHandler_SplitField
 End Function
 
 Private Function SplitFieldsOrderStr(fieldsString As String) As String()
@@ -1674,7 +1528,7 @@ Private Function SplitFieldsOrderStr(fieldsString As String) As String()
         End With
     End If
     tmpResult.Sort
-    SplitFieldsOrderStr = tmpResult.Keys
+    SplitFieldsOrderStr = tmpResult.keys
     Set tmpResult = Nothing
 End Function
 Private Function formatColumnPredicate(predicate As String, _
@@ -1703,59 +1557,6 @@ Private Function formatColumnPredicate(predicate As String, _
             End If
         Next
         formatColumnPredicate = tmpResult
-    End If
-End Function
-Private Function formatJoinPredicate(predicate As String, _
-                                    ByRef headerRecordT1 As Variant, _
-                                    ByRef headerRecordT2 As Variant) As String
-    If IsArray(headerRecordT1) And IsArray(headerRecordT2) Then 'Only works on tables. Relative indexes.
-        Dim cLB As Long
-        Dim cUB As Long
-        Dim DeltaIdx As Long
-        Dim ElmIdx As Long
-        Dim exprHelper As CSVexpressions
-        Dim headerRecord As Variant
-        Dim iterator As Long
-        Dim predicateCP As String
-        Dim tmpElm As String
-        Dim tmpStr As String
-        Dim tmpVariables() As String
-        Dim varComposition() As String
-        Dim SwitchedExpr As Boolean
-        
-        predicateCP = SwitchUnderscoresAndSpaces(predicate, headerRecordT1, headerRecordT2)
-        SwitchedExpr = predicateCP <> predicate
-        Set exprHelper = New CSVexpressions
-        exprHelper.Create predicateCP
-        tmpVariables() = Split(exprHelper.CurrentVariables, "; ")
-        For iterator = LBound(tmpVariables) To UBound(tmpVariables)
-            varComposition() = Split(tmpVariables(iterator), d_dot)
-            cLB = LBound(varComposition)
-            cUB = UBound(varComposition)
-            If Not IsNumeric(varComposition(cUB)) Then 'Check after dot symbol
-                tmpElm = varComposition(cUB)
-                If LCase(varComposition(cLB)) = "t1" Then
-                    headerRecord = headerRecordT1
-                Else
-                    If LCase(varComposition(cLB)) = "t2" Then
-                        headerRecord = headerRecordT2
-                    End If
-                End If
-                If Not SwitchedExpr Then
-                    ElmIdx = GetFieldIndex(tmpElm, headerRecord)
-                Else
-                    ElmIdx = GetFieldIndex(SwitchUnderscoresAndSpaces(tmpElm, headerRecordT1, headerRecordT2, False), headerRecord)
-                End If
-                If ElmIdx > -1 Then
-                    DeltaIdx = LBound(headerRecord)
-                    varComposition(cUB) = ElmIdx - DeltaIdx + 1
-                    tmpStr = Join(varComposition, d_dot)
-                    predicateCP = Replace(predicateCP, tmpVariables(iterator), tmpStr)
-                End If
-            End If
-        Next iterator
-        Set exprHelper = Nothing
-        formatJoinPredicate = predicateCP
     End If
 End Function
 Private Function RemoveEndSpaces(strValue As String) As String
@@ -1813,7 +1614,7 @@ Private Function SerializeRow(ByRef rArray As Variant) As String
     
     LB = LBound(rArray)
     UB = UBound(rArray)
-    Jagged = IsJaggedArray(rArray)
+    Jagged = isJaggedArray(rArray)
     If Jagged Then 'Recurse
         For i = LB To UB
             If i = LB Then
@@ -1978,568 +1779,6 @@ Private Function SwitchUnderscoresAndSpaces(ByRef cExpression As String, _
 End Function
 
 ''' <summary>
-''' Run a left outer join on the provided data tables.
-'''' 1) Use a string such as "{1-2,5,ID};{1-6}" as a predicate of the columns to
-'''' indicate the join of columns 1 to 2, 5 and ID of leftTable with
-'''' the columns 1 to 6 of rightTable.
-'''' 2) Use a string such as "{*};{1-3}" to indicate the union of ALL
-'''' columns of leftTable with columns 1 to 3 of rightTable.
-''' 3) The predicate must use the dot syntax [t1.#][t1.fieldName] to.
-'''' indicate the fields of the table, where t1 refers to the leftTable.
-''' 4) The matchKeys predicate must be given as ''''#/$;#/$'''.
-''' </summary>
-''' <param name="leftTable">First table.</param>.
-''' <param name="rightTable">Second table.</param> ''' <param name="rightTable">Second table.
-''' <param name="columns">String that specifies the structure of the rows returned.</param>
-''' <param name="matchKeys">Priority and preference keys to be matched.</param>
-''' <param name="predicate">Condition that must be met when selecting rows.</param>
-''' <param name="headers">Must be True if both tables have a header row.</param>
-''' All indexes must be given IN BASE 1.
-Public Function LeftJoin(ByRef leftTable As ECPArrayList, _
-                            ByRef rightTable As ECPArrayList, _
-                            Columns As String, _
-                            matchKeys As String, _
-                            Optional predicate As String = vbNullString, _
-                            Optional Headers As Boolean = True) As ECPArrayList
-                             
-    Dim cColumns() As String
-    Dim cKeys() As String
-    Dim cKLBidx As Long
-    Dim cPredicate As String
-    Dim evalRecord() As Variant
-    Dim evalRecord_BK() As Variant
-    Dim exprHelper As CSVexpressions
-    Dim FilterFields() As Long
-    Dim fullReqFields() As Long
-    Dim leftIdxDelta As Long
-    Dim lftTableReqFlds() As Long
-    Dim LftTblENDidx As Long
-    Dim lJoinIndex As Long
-    Dim MatchesForCurrentKey As ECPArrayList
-    Dim MatchesCount As Long
-    Dim MatchCounter As Long
-    Dim rCounter As Long
-    Dim refTable As ECPArrayList
-    Dim resultRecord() As Variant
-    Dim resultRecord_BK() As Variant
-    Dim rgtTableReqFlds() As Long
-    Dim rightIdxDelta As Long
-    Dim sCounter As Long
-    Dim tmpIndex As Long
-    Dim WrittenHeaders As Boolean
-    
-    On Error GoTo join_errHandler
-    If leftTable.indexing Or rightTable.indexing Then Exit Function 'Not available for indexed lists
-    Set LeftJoin = New ECPArrayList
-    Set MatchesForCurrentKey = New ECPArrayList
-    cColumns() = Split(Columns, d_semicolon)
-    lftTableReqFlds() = formatColumnPredicate( _
-                                                MidB$(cColumns(LBound(cColumns)), _
-                                            3, LenB(cColumns(LBound(cColumns))) - 4), _
-                                            leftTable(0))
-    rgtTableReqFlds() = formatColumnPredicate( _
-                                                MidB$(cColumns(UBound(cColumns)), _
-                                            3, LenB(cColumns(UBound(cColumns))) - 4), _
-                                            rightTable(0))
-    cKeys() = Split(matchKeys, d_semicolon)
-    cKLBidx = LBound(cKeys)
-    cKeys(cKLBidx) = formatKeyStr(cKeys(cKLBidx), leftTable(0))
-    cKeys(cKLBidx + 1) = formatKeyStr(cKeys(cKLBidx + 1), rightTable(0))
-    If predicate <> vbNullString Then
-        cPredicate = formatJoinPredicate(predicate, leftTable(0), rightTable(0))
-    End If
-    LftTblENDidx = UBound(lftTableReqFlds)
-    ReDim fullReqFields(0 To (LftTblENDidx + UBound(rgtTableReqFlds) + 1))
-    ReDim resultRecord(0 To UBound(fullReqFields))
-    resultRecord_BK() = resultRecord
-    leftIdxDelta = LBound(leftTable(0))
-    rightIdxDelta = LBound(rightTable(0))
-    FillReqFlds fullReqFields, lftTableReqFlds, leftIdxDelta, leftIdxDelta
-    FillReqFlds fullReqFields, rgtTableReqFlds, LftTblENDidx + 1, leftIdxDelta
-    Set refTable = rightTable.Copy
-    refTable.Sort 1 + Abs(Headers), sortingKeys:=CLng(cKeys(UBound(cKeys))) + rightIdxDelta  'Sort the right table
-    Set exprHelper = New CSVexpressions
-    With exprHelper
-        If predicate <> vbNullString Then
-            ReDim evalRecord(0 To (UBound(leftTable(0)) - LBound(leftTable(0)) + UBound(rightTable(0)) - LBound(rightTable(0))) + 1)
-            evalRecord_BK() = evalRecord
-            .Create cPredicate
-            cPredicate = BindToEvalTable(.expression, _
-                                    .CurrentVariables, _
-                                    fullReqFields, UBound(leftTable(0)) - leftIdxDelta)
-        
-            .Create cPredicate
-            FilterFields() = GetIndexesFromVarList(.CurrentVariables)
-        End If
-        For rCounter = Abs(Headers) To leftTable.count - 1
-            'Initial configurations
-            MatchesForCurrentKey.Clear
-            MatchCounter = 0
-            lJoinIndex = -1
-            'Find a key occurrence
-            tmpIndex = refTable.ItemIndex(leftTable(rCounter)(CLng(cKeys(cKLBidx)) + leftIdxDelta - 1), _
-                                            CLng(cKeys(cKLBidx + 1)) + rightIdxDelta, lJoinIndex + 2)
-            'Find the first occurrence of the key
-            Do While tmpIndex > -1
-                lJoinIndex = tmpIndex
-                tmpIndex = refTable.ItemIndex(leftTable(rCounter)(CLng(cKeys(cKLBidx)) + leftIdxDelta - 1), _
-                                            CLng(cKeys(cKLBidx + 1)) + rightIdxDelta, tmpIndex, True)
-            Loop
-            If lJoinIndex > -1 Then
-                'Save all occurrences
-                Do
-                    MatchesForCurrentKey.Add lJoinIndex
-                    lJoinIndex = lJoinIndex + 1
-                Loop While leftTable(rCounter)(CLng(cKeys(cKLBidx)) + leftIdxDelta - 1) _
-                            = refTable(lJoinIndex)(CLng(cKeys(cKLBidx + 1)) + rightIdxDelta - 1)
-            End If
-            MatchesCount = MatchesForCurrentKey.count
-            If MatchesCount = 0 Then
-                MatchesForCurrentKey.Add -1
-            End If
-            Do
-                If Headers Then
-                    If Not WrittenHeaders Then
-                        ' Fill headers on left
-                        For sCounter = 0 To LftTblENDidx
-                            resultRecord(sCounter) = leftTable(0)(lftTableReqFlds(sCounter) _
-                                                    + leftIdxDelta - 1)
-                        Next sCounter
-                        ' Fill headers on right
-                        For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                            resultRecord(sCounter) = refTable(0)(rgtTableReqFlds(sCounter - _
-                                                    (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                        Next sCounter
-                        LeftJoin.Add resultRecord 'Append current record
-                        WrittenHeaders = True
-                        resultRecord() = resultRecord_BK
-                    End If
-                End If
-                'Fill left table data
-                For sCounter = 0 To LftTblENDidx
-                    resultRecord(sCounter) = leftTable(rCounter)(lftTableReqFlds(sCounter) _
-                                                    + leftIdxDelta - 1)
-                Next sCounter
-                lJoinIndex = MatchesForCurrentKey(MatchCounter)
-                If predicate <> vbNullString Then
-                    FillReqFlds evalRecord, leftTable(rCounter), leftIdxDelta, leftIdxDelta
-                    If lJoinIndex > -1 Then
-                        FillReqFlds evalRecord, refTable(lJoinIndex), UBound(leftTable(0)) + 1, leftIdxDelta
-                    End If
-                    On Error Resume Next
-                    .Eval GetValuesForVariables(rCounter, FilterFields, False, evalRecord)
-                    If .errorType = ExpressionErrors.errNone Then
-                        If err.Number = 0 Then
-                            If CBool(.Result) Then
-                                'Fill in the data in the table on the right only if the join and predicate are satisfied.
-                                If lJoinIndex > -1 Then
-                                    For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                                        resultRecord(sCounter) = refTable(lJoinIndex)(rgtTableReqFlds(sCounter - _
-                                                                (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                                    Next sCounter
-                                End If
-                            End If
-                        Else
-                        err.Clear
-                        End If
-                    End If
-                Else
-                    'Fill in the data in the table on the right only if the join is satisfied.
-                    If lJoinIndex > -1 Then
-                        For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                            resultRecord(sCounter) = refTable(lJoinIndex)(rgtTableReqFlds(sCounter - _
-                                                            (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                        Next sCounter
-                    End If
-                End If
-                LeftJoin.Add resultRecord 'Append current record
-                resultRecord() = resultRecord_BK
-                evalRecord() = evalRecord_BK
-                MatchCounter = MatchCounter + 1
-            Loop While MatchCounter <= MatchesCount - 1
-        Next rCounter
-    End With
-    Set exprHelper = Nothing
-    Set refTable = Nothing
-    Exit Function
-join_errHandler:
-End Function
-''' <summary>
-''' Run a right outer join on the provided data tables.
-'''' 1) Use a string such as "{1-2,5,ID};{1-6}" as a predicate of the columns to
-'''' indicate the join of columns 1 to 2, 5 and ID of leftTable with
-'''' the columns 1 to 6 of rightTable.
-'''' 2) Use a string such as "{*};{1-3}" to indicate the union of ALL
-'''' columns of leftTable with columns 1 to 3 of rightTable.
-''' 3) The predicate must use the dot syntax [t1.#][t1.fieldName] to.
-'''' indicate the fields of the table, where t1 refers to the leftTable.
-''' 4) The matchKeys predicate must be given as ''''#/$;#/$'''.
-''' </summary>
-''' <param name="leftTable">First table.</param>.
-''' <param name="rightTable">Second table.</param> ''' <param name="rightTable">Second table.
-''' <param name="columns">String that specifies the structure of the rows returned.</param>
-''' <param name="matchKeys">Priority and preference keys to be matched.</param>
-''' <param name="predicate">Condition that must be met when selecting rows.</param>
-''' <param name="headers">Must be True if both tables have a header row.</param>
-''' All indexes must be given IN BASE 1.
-Public Function RightJoin(ByRef leftTable As ECPArrayList, _
-                            ByRef rightTable As ECPArrayList, _
-                            Columns As String, _
-                            matchKeys As String, _
-                            Optional predicate As String = vbNullString, _
-                            Optional Headers As Boolean = True) As ECPArrayList
-    On Error GoTo join_errHandler
-    Dim cColumns() As String
-    Dim cKeys() As String
-    Dim cKLBidx As Long
-    Dim cPredicate As String
-    Dim evalRecord() As Variant
-    Dim evalRecord_BK() As Variant
-    Dim exprHelper As CSVexpressions
-    Dim FilterFields() As Long
-    Dim fullReqFields() As Long
-    Dim leftIdxDelta As Long
-    Dim lftTableReqFlds() As Long
-    Dim LftTblENDidx As Long
-    Dim lJoinIndex As Long
-    Dim MatchesForCurrentKey As ECPArrayList
-    Dim MatchCounter As Long
-    Dim MatchesCount As Long
-    Dim rCounter As Long
-    Dim refTable As ECPArrayList
-    Dim resultRecord() As Variant
-    Dim resultRecord_BK() As Variant
-    Dim rgtTableReqFlds() As Long
-    Dim rightIdxDelta As Long
-    Dim sCounter As Long
-    Dim tmpIndex As Long
-    Dim WrittenHeaders As Boolean
-    
-    If leftTable.indexing Or rightTable.indexing Then Exit Function 'Not available for indexed lists
-    Set RightJoin = New ECPArrayList
-    Set MatchesForCurrentKey = New ECPArrayList
-    cColumns() = Split(Columns, d_semicolon)
-    lftTableReqFlds() = formatColumnPredicate( _
-                                                MidB$(cColumns(LBound(cColumns)), _
-                                            3, LenB(cColumns(LBound(cColumns))) - 4), _
-                                            leftTable(0))
-    rgtTableReqFlds() = formatColumnPredicate( _
-                                                MidB$(cColumns(UBound(cColumns)), _
-                                            3, LenB(cColumns(UBound(cColumns))) - 4), _
-                                            rightTable(0))
-    cKeys() = Split(matchKeys, d_semicolon)
-    cKLBidx = LBound(cKeys)
-    cKeys(cKLBidx) = formatKeyStr(cKeys(cKLBidx), leftTable(0))
-    cKeys(cKLBidx + 1) = formatKeyStr(cKeys(cKLBidx + 1), rightTable(0))
-    If predicate <> vbNullString Then
-        cPredicate = formatJoinPredicate(predicate, leftTable(0), rightTable(0))
-    End If
-    LftTblENDidx = UBound(lftTableReqFlds)
-    ReDim fullReqFields(0 To (LftTblENDidx + UBound(rgtTableReqFlds) + 1))
-    ReDim resultRecord(0 To UBound(fullReqFields))
-    resultRecord_BK() = resultRecord
-    leftIdxDelta = LBound(leftTable(0))
-    rightIdxDelta = LBound(rightTable(0))
-    FillReqFlds fullReqFields, lftTableReqFlds, leftIdxDelta, leftIdxDelta
-    FillReqFlds fullReqFields, rgtTableReqFlds, LftTblENDidx + 1, leftIdxDelta
-    Set refTable = leftTable.Copy
-    refTable.Sort 1 + Abs(Headers), sortingKeys:=CLng(cKeys(LBound(cKeys))) + leftIdxDelta  'Sort the left table
-    Set exprHelper = New CSVexpressions
-    With exprHelper
-        If predicate <> vbNullString Then
-            ReDim evalRecord(0 To (UBound(leftTable(0)) - LBound(leftTable(0)) + UBound(rightTable(0)) - LBound(rightTable(0))) + 1)
-            evalRecord_BK() = evalRecord
-            .Create cPredicate
-            cPredicate = BindToEvalTable(.expression, _
-                                    .CurrentVariables, _
-                                    fullReqFields, UBound(leftTable(0)) - leftIdxDelta)
-        
-            .Create cPredicate
-            FilterFields() = GetIndexesFromVarList(.CurrentVariables)
-        End If
-        For rCounter = Abs(Headers) To rightTable.count - 1
-            'Initial configurations
-            MatchesForCurrentKey.Clear
-            MatchCounter = 0
-            lJoinIndex = -1
-            'Find a key occurrence
-            tmpIndex = refTable.ItemIndex(rightTable(rCounter)(CLng(cKeys(cKLBidx + 1)) + rightIdxDelta - 1), _
-                                            CLng(cKeys(cKLBidx)) + leftIdxDelta, lJoinIndex + 2)
-            'Find the first occurrence of the key
-            Do While tmpIndex > -1
-                lJoinIndex = tmpIndex
-                tmpIndex = refTable.ItemIndex(rightTable(rCounter)(CLng(cKeys(cKLBidx + 1)) + rightIdxDelta - 1), _
-                                            CLng(cKeys(cKLBidx)) + leftIdxDelta, tmpIndex, True)
-            Loop
-            If lJoinIndex > -1 Then
-                'Save all occurrences
-                Do
-                    MatchesForCurrentKey.Add lJoinIndex
-                    lJoinIndex = lJoinIndex + 1
-                Loop While rightTable(rCounter)(CLng(cKeys(cKLBidx)) + rightIdxDelta - 1) _
-                            = refTable(lJoinIndex)(CLng(cKeys(cKLBidx + 1)) + leftIdxDelta - 1)
-            End If
-            MatchesCount = MatchesForCurrentKey.count
-            If MatchesCount = 0 Then
-                MatchesForCurrentKey.Add -1
-            End If
-            Do
-                If Headers Then
-                    If Not WrittenHeaders Then
-                        ' Fill headers on right
-                        For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                            resultRecord(sCounter) = rightTable(0)(rgtTableReqFlds(sCounter - _
-                                                        (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                        Next sCounter
-                        ' Fill headers on left
-                        For sCounter = 0 To LftTblENDidx
-                            resultRecord(sCounter) = refTable(0)(lftTableReqFlds(sCounter) _
-                                                    + leftIdxDelta - 1)
-                        Next sCounter
-                        RightJoin.Add resultRecord 'Append current record
-                        WrittenHeaders = True
-                        resultRecord() = resultRecord_BK
-                    End If
-                End If
-                'Fill right table data
-                For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                    resultRecord(sCounter) = rightTable(rCounter)(rgtTableReqFlds(sCounter - _
-                                                        (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                Next sCounter
-                lJoinIndex = MatchesForCurrentKey(MatchCounter)
-                If predicate <> vbNullString Then
-                    FillReqFlds evalRecord, rightTable(rCounter), UBound(leftTable(0)) + 1, leftIdxDelta
-                    If lJoinIndex > -1 Then
-                        FillReqFlds evalRecord, refTable(lJoinIndex), leftIdxDelta, leftIdxDelta
-                    End If
-                    On Error Resume Next
-                    .Eval GetValuesForVariables(rCounter, FilterFields, False, evalRecord)
-                    If .errorType = ExpressionErrors.errNone Then
-                        If err.Number = 0 Then
-                            If CBool(.Result) Then
-                                'Fill in the data in the table on the left only if the join and predicate are satisfied.
-                                If lJoinIndex > -1 Then
-                                    For sCounter = 0 To LftTblENDidx
-                                        resultRecord(sCounter) = refTable(lJoinIndex)(lftTableReqFlds(sCounter) _
-                                                                        + leftIdxDelta - 1)
-                                    Next sCounter
-                                End If
-                            End If
-                        Else
-                        err.Clear
-                        End If
-                    End If
-                Else
-                    'Fill in the data in the table on the left only if the join is satisfied.
-                    If lJoinIndex > -1 Then
-                        For sCounter = 0 To LftTblENDidx
-                            resultRecord(sCounter) = refTable(lJoinIndex)(lftTableReqFlds(sCounter) _
-                                                            + leftIdxDelta - 1)
-                        Next sCounter
-                    End If
-                End If
-                RightJoin.Add resultRecord 'Append current record
-                resultRecord() = resultRecord_BK
-                evalRecord() = evalRecord_BK
-                MatchCounter = MatchCounter + 1
-            Loop While MatchCounter <= MatchesCount - 1
-        Next rCounter
-    End With
-    Set exprHelper = Nothing
-    Set refTable = Nothing
-    Exit Function
-join_errHandler:
-End Function
-''' <summary>
-''' Run an inner join on the provided data tables.
-'''' 1) Use a string such as "{1-2,5,ID};{1-6}" as a predicate of the columns to
-'''' indicate the join of columns 1 to 2, 5 and ID of leftTable with
-'''' the columns 1 to 6 of rightTable.
-'''' 2) Use a string such as "{*};{1-3}" to indicate the union of ALL '''' columns of leftTable.
-'''' columns of leftTable with columns 1 to 3 of rightTable.
-''' 3) The predicate must use the dot syntax [t1.#][t1.fieldName] to.
-'''' indicate the fields of the table, where t1 refers to the leftTable.
-''' 4) The matchKeys predicate must be given as ''''#/$;#/$'''.
-''' </summary>
-''' <param name="leftTable">First table.</param>.
-''' <param name="rightTable">Second table.</param> ''' <param name="rightTable">Second table.
-''' <param name="columns">String that specifies the structure of the rows returned.</param>
-''' <param name="matchKeys">Priority and preference keys to be matched.</param>
-''' <param name="predicate">Condition that must be met when selecting rows.</param>
-''' <param name="headers">Must be True if both tables have a header row.</param>
-''' All indexes must be given IN BASE 1.
-Public Function InnerJoin(ByRef leftTable As ECPArrayList, _
-                            ByRef rightTable As ECPArrayList, _
-                            Columns As String, _
-                            matchKeys As String, _
-                            Optional predicate As String = vbNullString, _
-                            Optional Headers As Boolean = True) As ECPArrayList
-                             
-    Dim cColumns() As String
-    Dim cKeys() As String
-    Dim cKLBidx As Long
-    Dim cPredicate As String
-    Dim evalRecord() As Variant
-    Dim evalRecord_BK() As Variant
-    Dim exprHelper As CSVexpressions
-    Dim FilterFields() As Long
-    Dim fullReqFields() As Long
-    Dim leftIdxDelta As Long
-    Dim lftTableReqFlds() As Long
-    Dim LftTblENDidx As Long
-    Dim lJoinIndex As Long
-    Dim MatchesForCurrentKey As ECPArrayList
-    Dim MatchCounter As Long
-    Dim MatchesCount As Long
-    Dim rCounter As Long
-    Dim refTable As ECPArrayList
-    Dim resultRecord() As Variant
-    Dim resultRecord_BK() As Variant
-    Dim rgtTableReqFlds() As Long
-    Dim rightIdxDelta As Long
-    Dim sCounter As Long
-    Dim tmpIndex As Long
-    Dim WrittenHeaders As Boolean
-    
-    If leftTable.indexing Or rightTable.indexing Then Exit Function 'Not available for indexed lists
-    Set InnerJoin = New ECPArrayList
-    Set MatchesForCurrentKey = New ECPArrayList
-    cColumns() = Split(Columns, d_semicolon)
-    lftTableReqFlds() = formatColumnPredicate( _
-                                                MidB$(cColumns(LBound(cColumns)), _
-                                            3, LenB(cColumns(LBound(cColumns))) - 4), _
-                                            leftTable(0))
-    rgtTableReqFlds() = formatColumnPredicate( _
-                                                MidB$(cColumns(UBound(cColumns)), _
-                                            3, LenB(cColumns(UBound(cColumns))) - 4), _
-                                            rightTable(0))
-    cKeys() = Split(matchKeys, d_semicolon)
-    cKLBidx = LBound(cKeys)
-    cKeys(cKLBidx) = formatKeyStr(cKeys(cKLBidx), leftTable(0))
-    cKeys(cKLBidx + 1) = formatKeyStr(cKeys(cKLBidx + 1), rightTable(0))
-    If predicate <> vbNullString Then
-        cPredicate = formatJoinPredicate(predicate, leftTable(0), rightTable(0))
-    End If
-    LftTblENDidx = UBound(lftTableReqFlds)
-    ReDim fullReqFields(0 To (LftTblENDidx + UBound(rgtTableReqFlds) + 1))
-    ReDim resultRecord(0 To UBound(fullReqFields))
-    resultRecord_BK() = resultRecord
-    leftIdxDelta = LBound(leftTable(0))
-    rightIdxDelta = LBound(rightTable(0))
-    FillReqFlds fullReqFields, lftTableReqFlds, leftIdxDelta, leftIdxDelta
-    FillReqFlds fullReqFields, rgtTableReqFlds, LftTblENDidx + 1, leftIdxDelta
-    Set refTable = rightTable.Copy
-    refTable.Sort 1 + Abs(Headers), sortingKeys:=CLng(cKeys(UBound(cKeys))) + rightIdxDelta  'Sort the right table
-    Set exprHelper = New CSVexpressions
-    With exprHelper
-        If predicate <> vbNullString Then
-            ReDim evalRecord(0 To (UBound(leftTable(0)) - LBound(leftTable(0)) + UBound(rightTable(0)) - LBound(rightTable(0))) + 1)
-            evalRecord_BK() = evalRecord
-            .Create cPredicate
-            cPredicate = BindToEvalTable(.expression, _
-                                    .CurrentVariables, _
-                                    fullReqFields, UBound(leftTable(0)) - leftIdxDelta)
-        
-            .Create cPredicate
-            FilterFields() = GetIndexesFromVarList(.CurrentVariables)
-        End If
-        For rCounter = Abs(Headers) To leftTable.count - 1
-                        'Initial configurations
-            MatchesForCurrentKey.Clear
-            MatchCounter = 0
-            lJoinIndex = -1
-            'Find a key occurrence
-            tmpIndex = refTable.ItemIndex(leftTable(rCounter)(CLng(cKeys(cKLBidx)) + leftIdxDelta - 1), _
-                                            CLng(cKeys(cKLBidx + 1)) + rightIdxDelta, lJoinIndex + 2)
-            'Find the first occurrence of the key
-            Do While tmpIndex > -1
-                lJoinIndex = tmpIndex
-                tmpIndex = refTable.ItemIndex(leftTable(rCounter)(CLng(cKeys(cKLBidx)) + leftIdxDelta - 1), _
-                                            CLng(cKeys(cKLBidx + 1)) + rightIdxDelta, tmpIndex, True)
-            Loop
-            If lJoinIndex > -1 Then
-                'Save all occurrences
-                Do
-                    MatchesForCurrentKey.Add lJoinIndex
-                    lJoinIndex = lJoinIndex + 1
-                Loop While leftTable(rCounter)(CLng(cKeys(cKLBidx)) + leftIdxDelta - 1) _
-                            = refTable(lJoinIndex)(CLng(cKeys(cKLBidx + 1)) + rightIdxDelta - 1)
-            End If
-            MatchesCount = MatchesForCurrentKey.count
-            If MatchesCount = 0 Then
-                MatchesForCurrentKey.Add -1
-            End If
-            Do
-                If Headers Then
-                    If Not WrittenHeaders Then
-                        ' Fill headers on left
-                        For sCounter = 0 To LftTblENDidx
-                            resultRecord(sCounter) = leftTable(0)(lftTableReqFlds(sCounter) _
-                                                    + leftIdxDelta - 1)
-                        Next sCounter
-                        ' Fill headers on right
-                        For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                            resultRecord(sCounter) = refTable(0)(rgtTableReqFlds(sCounter - _
-                                                    (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                        Next sCounter
-                        InnerJoin.Add resultRecord 'Append current record
-                        WrittenHeaders = True
-                        resultRecord() = resultRecord_BK
-                    End If
-                End If
-                lJoinIndex = MatchesForCurrentKey(MatchCounter)
-                If predicate <> vbNullString Then
-                    FillReqFlds evalRecord, leftTable(rCounter), leftIdxDelta, leftIdxDelta
-                    If lJoinIndex > -1 Then
-                        FillReqFlds evalRecord, refTable(lJoinIndex), UBound(leftTable(0)) + 1, leftIdxDelta
-                    End If
-                    On Error Resume Next
-                    .Eval GetValuesForVariables(rCounter, FilterFields, False, evalRecord)
-                    If .errorType = ExpressionErrors.errNone Then
-                        If err.Number = 0 Then
-                            If CBool(.Result) Then
-                                'Fill in the data in the table.
-                                If lJoinIndex > -1 Then
-                                    For sCounter = 0 To LftTblENDidx
-                                        resultRecord(sCounter) = leftTable(rCounter)(lftTableReqFlds(sCounter) _
-                                                                    + leftIdxDelta - 1)
-                                    Next sCounter
-                                    For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                                        resultRecord(sCounter) = refTable(lJoinIndex)(rgtTableReqFlds(sCounter - _
-                                                                (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                                    Next sCounter
-                                    InnerJoin.Add resultRecord 'Append current record
-                                End If
-                            End If
-                        Else
-                        err.Clear
-                        End If
-                    End If
-                Else
-                    'Fill in the data in the table.
-                    If lJoinIndex > -1 Then
-                        For sCounter = 0 To LftTblENDidx
-                            resultRecord(sCounter) = leftTable(rCounter)(lftTableReqFlds(sCounter) _
-                                                        + leftIdxDelta - 1)
-                        Next sCounter
-                        For sCounter = LftTblENDidx + 1 To UBound(resultRecord)
-                            resultRecord(sCounter) = refTable(lJoinIndex)(rgtTableReqFlds(sCounter - _
-                                                            (LftTblENDidx + 1)) + rightIdxDelta - 1)
-                        Next sCounter
-                        InnerJoin.Add resultRecord 'Append current record
-                    End If
-                End If
-                resultRecord() = resultRecord_BK
-                evalRecord() = evalRecord_BK
-                MatchCounter = MatchCounter + 1
-            Loop While MatchCounter <= MatchesCount - 1
-        Next rCounter
-    End With
-    Set exprHelper = Nothing
-    Set refTable = Nothing
-End Function
-
-''' <summary>
 ''' To max heapify a subtree rooted with node [i].
 ''' </summary>
 ''' <param name="i">Node on the heap tree (base 1).</param>
@@ -2552,19 +1791,19 @@ Private Sub max_heapify(i As Long, _
                         HeapSize As Long)
     Dim largest As Long
     Dim l As Long
-    Dim r As Long
+    Dim R As Long
     
     l = 2 * i                                   'LEFT
-    r = 2 * i + 1                               'RIGHT
+    R = 2 * i + 1                               'RIGHT
     largest = i
     If l <= HeapSize Then
         If Buffer(leftt + l - 1)(SortingKey) > Buffer(leftt + i - 1)(SortingKey) Then
             largest = l
         End If
     End If
-    If r <= HeapSize Then
-        If Buffer(leftt + r - 1)(SortingKey) > Buffer(leftt + largest - 1)(SortingKey) Then
-            largest = r
+    If R <= HeapSize Then
+        If Buffer(leftt + R - 1)(SortingKey) > Buffer(leftt + largest - 1)(SortingKey) Then
+            largest = R
         End If
     End If
     If largest <> i Then
@@ -2581,7 +1820,7 @@ End Sub
 ''' <param name="R">The index of the last item to be merged.</param>
 ''' <param name="SortingKey">The column/key for the logical comparisons.</param>
 ''' <param name="Descending">Sort order.</param>
-Private Sub merge(l As Long, m As Long, r As Long, SortingKey As Long, Descending As Boolean)
+Private Sub merge(l As Long, m As Long, R As Long, SortingKey As Long, Descending As Boolean)
     
     If Descending Then
         If Buffer(m)(SortingKey) >= Buffer(m + 1)(SortingKey) Then
@@ -2601,7 +1840,7 @@ Private Sub merge(l As Long, m As Long, r As Long, SortingKey As Long, Descendin
     Dim k As Long
     
     len1 = m - l + 1
-    len2 = r - m
+    len2 = R - m
     ReDim leftt(len1 - 1)
     ReDim rightt(len2 - 1)
     For i = 0 To len1 - 1
@@ -2766,7 +2005,7 @@ Private Sub MergeSort_Asc(leftt As Long, _
                             pvarMirror As Variant)
     Dim Ulen As Long
     Dim l As Long
-    Dim r As Long
+    Dim R As Long
     Dim O As Long
     Dim BoolSwitch As Boolean
     
@@ -2781,14 +2020,14 @@ Private Sub MergeSort_Asc(leftt As Long, _
             MergeSort_Asc Ulen + 1, rightt, SortingKey, pvarMirror
             ' Merge the resulting halves
             l = leftt ' start of first (left) half
-            r = Ulen + 1 ' start of second (right) half
+            R = Ulen + 1 ' start of second (right) half
             O = leftt ' start of output (mirror array)
             Do
-                BoolSwitch = Buffer(r)(SortingKey) < Buffer(l)(SortingKey)
+                BoolSwitch = Buffer(R)(SortingKey) < Buffer(l)(SortingKey)
                 If BoolSwitch Then
-                    pvarMirror(O) = Buffer(r)
-                    r = r + 1
-                    If r > rightt Then
+                    pvarMirror(O) = Buffer(R)
+                    R = R + 1
+                    If R > rightt Then
                         For l = l To Ulen
                             O = O + 1
                             pvarMirror(O) = Buffer(l)
@@ -2799,9 +2038,9 @@ Private Sub MergeSort_Asc(leftt As Long, _
                     pvarMirror(O) = Buffer(l)
                     l = l + 1
                     If l > Ulen Then
-                        For r = r To rightt
+                        For R = R To rightt
                             O = O + 1
-                            pvarMirror(O) = Buffer(r)
+                            pvarMirror(O) = Buffer(R)
                         Next
                         Exit Do
                     End If
@@ -2823,7 +2062,7 @@ Private Sub MergeSort_Desc(leftt As Long, _
                             pvarMirror As Variant)
     Dim Ulen As Long
     Dim l As Long
-    Dim r As Long
+    Dim R As Long
     Dim O As Long
     Dim BoolSwitch As Boolean
     
@@ -2838,14 +2077,14 @@ Private Sub MergeSort_Desc(leftt As Long, _
             MergeSort_Desc Ulen + 1, rightt, SortingKey, pvarMirror
             ' Merge the resulting halves
             l = leftt ' start of first (left) half
-            r = Ulen + 1 ' start of second (right) half
+            R = Ulen + 1 ' start of second (right) half
             O = leftt ' start of output (mirror array)
             Do
-                BoolSwitch = Buffer(r)(SortingKey) > Buffer(l)(SortingKey)
+                BoolSwitch = Buffer(R)(SortingKey) > Buffer(l)(SortingKey)
                 If BoolSwitch Then
-                    pvarMirror(O) = Buffer(r)
-                    r = r + 1
-                    If r > rightt Then
+                    pvarMirror(O) = Buffer(R)
+                    R = R + 1
+                    If R > rightt Then
                         For l = l To Ulen
                             O = O + 1
                             pvarMirror(O) = Buffer(l)
@@ -2856,9 +2095,9 @@ Private Sub MergeSort_Desc(leftt As Long, _
                     pvarMirror(O) = Buffer(l)
                     l = l + 1
                     If l > Ulen Then
-                        For r = r To rightt
+                        For R = R To rightt
                             O = O + 1
-                            pvarMirror(O) = Buffer(r)
+                            pvarMirror(O) = Buffer(R)
                         Next
                         Exit Do
                     End If
@@ -2876,11 +2115,11 @@ End Sub
 ''' </summary>
 ''' <param name="a">First value.</param>
 ''' <param name="b">Second value.</param>
-Private Function Min(a As Long, b As Long) As Long
-    If b < a Then
+Private Function Min(A As Long, b As Long) As Long
+    If b < A Then
         Min = b
     Else
-        Min = a
+        Min = A
     End If
 End Function
 
@@ -2896,19 +2135,19 @@ Private Sub min_heapify(i As Long, _
                         HeapSize As Long)
     Dim smallest As Long
     Dim l As Long
-    Dim r As Long
+    Dim R As Long
     
     l = 2 * i                                   'LEFT
-    r = 2 * i + 1                               'RIGHT
+    R = 2 * i + 1                               'RIGHT
     smallest = i
     If l <= HeapSize Then
         If Buffer(leftt + l - 1)(SortingKey) < Buffer(leftt + i - 1)(SortingKey) Then
             smallest = l
         End If
     End If
-    If r <= HeapSize Then
-        If Buffer(leftt + r - 1)(SortingKey) < Buffer(leftt + smallest - 1)(SortingKey) Then
-            smallest = r
+    If R <= HeapSize Then
+        If Buffer(leftt + R - 1)(SortingKey) < Buffer(leftt + smallest - 1)(SortingKey) Then
+            smallest = R
         End If
     End If
     If smallest <> i Then
@@ -3261,70 +2500,6 @@ Private Sub QuickSort_Desc(leftt As Long, _
     End If
 End Sub
 
-''' <summary>
-''' Reduces the internal array list to the result by evaluate the
-''' ReductionExpression over all items.
-''' </summary>
-''' <param name="ReductionExpression">The expression to eval and get reduction.</param>
-''' <param name="StartIndex">The index to start filter records (base 1).</param>
-Public Function Reduce(ReductionExpression As String, startIndex As Long, _
-                        endIndex As Long, Optional Headers As Boolean = True) As Variant()
-    Dim cPattern As String
-    Dim Evaluator As CSVexpressions
-    Dim evalWithOutVar As Boolean
-    Dim rCounter As Long
-    Dim TargetFields() As Long
-    Dim tmpElement() As Variant
-    Dim tmpResult() As Variant
-    
-    On Error GoTo Reduce_ErrHandler
-    If P_INDEXING Then Exit Function 'Does not work over indexed buffers
-    If startIndex < 1 Then Exit Function
-    Set Evaluator = New CSVexpressions
-    If Headers Then
-        If startIndex = 1 Then
-            startIndex = startIndex + 1
-        End If
-    End If
-    If endIndex - 1 > CurrentIndex Then
-        endIndex = CurrentIndex + 1
-    End If
-    ReDim tmpResult(0 To endIndex - startIndex)
-    ReDim tmpElement(0 To 0)
-    With Evaluator
-        If Headers Then
-            .Create SwitchUnderscoresAndSpaces(ReductionExpression, Buffer(0))
-            evalWithOutVar = (.CurrentVariables = vbNullString)
-            If Not evalWithOutVar Then
-                TargetFields() = GetIndexesFromVarList(SwitchUnderscoresAndSpaces(.CurrentVariables, Buffer(0), ToUnderscores:=False), Buffer(0))
-                'Replace
-                cPattern = RebuildEvalExpression(.expression, .CurrentVariables, TargetFields)
-                .Create cPattern
-            End If
-        Else
-            .Create ReductionExpression
-            evalWithOutVar = (.CurrentVariables = vbNullString)
-            If Not evalWithOutVar Then
-                TargetFields() = GetIndexesFromVarList(.CurrentVariables)
-            End If
-        End If
-        For rCounter = startIndex - 1 To endIndex - 1
-            If Not evalWithOutVar Then
-                On Error Resume Next
-                .Eval GetValuesForVariables(rCounter, TargetFields)
-            Else
-                On Error Resume Next
-                .Eval
-            End If
-            tmpElement(0) = FormatEvalOutput(.Result)
-            tmpResult(0 + rCounter - startIndex + 1) = tmpElement  'reduce
-        Next rCounter
-    End With
-    Reduce = tmpResult
-Reduce_ErrHandler:
-    Set Evaluator = Nothing
-End Function
-
 Private Function RearrangeCheckFieldsToOperate(fieldsToRearrange() As String) As Boolean
     Dim BufferColUB As Long
     Dim definedIdx As Long
@@ -3406,7 +2581,7 @@ End Function
 ''' </summary>
 Public Sub Reinitialize(bufferSize As Long)
     Select Case bufferSize
-        Case Is >= 0
+        Case Is >= 1
             If Not P_INDEXING Then
                 CurrentIndex = -1
                 MaxIndex = bufferSize - 1
@@ -4115,7 +3290,7 @@ Private Sub TimSort(leftt As Long, rightt As Long, SortingKey As Long, Descendin
     Dim Size As Long
     Dim l As Long
     Dim midd As Long
-    Dim r As Long
+    Dim R As Long
     Dim i As Long
     
     For i = leftt To rightt Step RUN
@@ -4128,11 +3303,11 @@ Private Sub TimSort(leftt As Long, rightt As Long, SortingKey As Long, Descendin
     Do While Size - 1 < rightt
         For l = leftt To rightt Step 2 * Size
             midd = Min(l + Size - 1, rightt)
-            r = Min(l + 2 * Size - 1, rightt)
+            R = Min(l + 2 * Size - 1, rightt)
             ' merge sub array arr[L.....midd] &
             ' arr[midd+1....R]
-            If midd < r Then
-                merge l, midd, r, SortingKey, Descending
+            If midd < R Then
+                merge l, midd, R, SortingKey, Descending
             End If
         Next l
         Size = 2 * Size

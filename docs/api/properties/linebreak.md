@@ -2,7 +2,7 @@
 title: lineBreak
 parent: Properties
 grand_parent: API
-nav_order: 7
+nav_order: 9
 ---
 
 # lineBreak

@@ -67,11 +67,11 @@ Sub StreamAndSave()
     Path = "C:\6400000.quoted.csv"
     Set TextStream = New ECPTextStream
     TextStream.OpenStream Path
-    TextStream.EndStreamOnLineBreak = True
-    ReDim tmpArray(0 To Fix(TextStream.StreamLength / TextStream.BufferLen) + 1)
-    Do While Not TextStream.AtEndOfStream
+    TextStream.endStreamOnLineBreak = True
+    ReDim tmpArray(0 To Fix(TextStream.streamLength / TextStream.bufferLength) + 1)
+    Do While Not TextStream.atEndOfStream
         TextStream.ReadText
-        tmpArray(i) = TextStream.BufferString
+        tmpArray(i) = TextStream.bufferString
         i = i + 1
     Loop
     TextStream.CloseStream

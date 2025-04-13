@@ -343,6 +343,9 @@ Private Sub FindEOLcharacter()
     End If
     Seek #FileHandled, CorrectedPos
 End Sub
+Private Function FileExists(ByVal filePath As String) As Boolean
+    FileExists = CBool(LenB(Dir(filePath, vbHidden + vbNormal + vbSystem + vbReadOnly + vbArchive)))
+End Function
 Private Function FolderExists(ByVal filePath As String) As Boolean
     FolderExists = CBool(LenB(Dir(filePath, vbDirectory)))
 End Function
@@ -427,14 +430,16 @@ Private Sub NormalizeLineBreaks()
     P_LINEBREAK = vbLf
 End Sub
 Public Sub OpenStream(filePath As String)
-Attribute OpenStream.VB_Description = "Opens a stream over a text file."
+Public Sub OpenStream(filePath As String)
     If P_PATH <> filePath Then
-        If P_AUTODETECTENCODING Then
-            P_DETECTEDENCODING = DetectEncoding(filePath)
-            P_UTF8ENCODED = (P_DETECTEDENCODING = "UTF-8")
-        End If
         FileHandled = FreeFile
         CreateSubFolders filePath
+        If P_AUTODETECTENCODING Then
+            If FileExists(filePath) Then
+                P_DETECTEDENCODING = DetectEncoding(filePath)
+                P_UTF8ENCODED = (P_DETECTEDENCODING = "UTF-8")
+            End If
+        End If
         Open filePath For Binary As #FileHandled
         P_ISOPENSTREAM = True
         P_STREAMLENGTH = LOF(FileHandled)
